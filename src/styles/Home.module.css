@@ -1,34 +1,25 @@
+/* Home.module.css */
 .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
     text-align: center;
-    padding: 50px;
-    font-family: Arial, sans-serif;
   }
   
-  .connect-wallet {
+  .connectWallet {
+    background-color: #1e88e5;
+    border: none;
+    color: #ffffff;
     padding: 10px 20px;
-    margin: 20px 0;
+    border-radius: 8px;
     cursor: pointer;
   }
   
-  .form-container {
+  .connectWallet:hover {
+    background-color: #1565c0;
+  }
+  
+  .txnContainer {
     margin-top: 20px;
   }
   
-  .input-recipient,
-  .input-amount {
-    padding: 10px;
-    margin-right: 10px;
-  }
-  
-  .input-recipient {
-    width: 300px;
-  }
-  
-  .input-amount {
-    width: 150px;
-  }
-  
-  .send-eth {
-    padding: 10px 20px;
-   
-  }  
