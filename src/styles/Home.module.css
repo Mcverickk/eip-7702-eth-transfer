@@ -1,0 +1,34 @@
+.container {
+    text-align: center;
+    padding: 50px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .connect-wallet {
+    padding: 10px 20px;
+    margin: 20px 0;
+    cursor: pointer;
+  }
+  
+  .form-container {
+    margin-top: 20px;
+  }
+  
+  .input-recipient,
+  .input-amount {
+    padding: 10px;
+    margin-right: 10px;
+  }
+  
+  .input-recipient {
+    width: 300px;
+  }
+  
+  .input-amount {
+    width: 150px;
+  }
+  
+  .send-eth {
+    padding: 10px 20px;
+   
+  }  
