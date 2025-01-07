@@ -1,40 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# EIP-7702 ETH Transfer
 
-## Getting Started
+This project implements the EIP-7702 standard where an EOA is converted to a smart wallet to transfer ETH.
 
-First, run the development server:
+## Description
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project offers a reference implementation of the EIP-7702 standard, utilizing Viem and the Odyssey Testnet. It includes a basic smart contract deployed at [`0x50766859cA7566a2E61F1b5507331cf345b062a9`](https://odyssey-explorer.ithaca.xyz/address/0x50766859cA7566a2E61F1b5507331cf345b062a9), designed to transfer ETH from the contract address to a specified recipient. The EOA temporarily behaves as the contract for the duration of the transaction and transfers the funds.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/Mcverickk/eip-7702-eth-transfer
+    cd eip-7702-eth-transfer
+    ```
+2. Install dependencies:
+    ```sh
+    npm install
+    ```
+3. Run locally
+    ```sh
+    npm run dev
+    ```
