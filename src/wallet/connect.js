@@ -39,20 +39,21 @@ async function connectWallet({ setIsConnected, setBalance, setAccount }) {
 
 async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
 
-    console.log({recipient, amount, address});
-
+    
     if(!privateKey) {
         alert('Please enter your private key');
         return
     }
-
+    
     if(!client) {
         alert('Please connect your wallet first');
         return
     }
-
-
+    
+    
     const myAddress = privateKeyToAccount(privateKey);
+
+    console.log({recipient, amount, address: myAddress.address});
 
     const authorization = await client.signAuthorization({
         contractAddress: CONTRACT_ADDRESS,
@@ -60,7 +61,7 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
     })
 
     const valid = await verifyAuthorization({ 
-        address, 
+        address: myAddress.address, 
         authorization, 
       }) 
 
@@ -69,10 +70,10 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
 
     const hash = await client.writeContract({
         authorizationList: [authorization],
-        address,
+        address: myAddress.address,
         abi: CONTRACT_ABI,
         functionName: 'transfer',
-        account: address,
+        account: myAddress.address,
         args: [recipient, parseUnits(amount, 18)]
     })
 
