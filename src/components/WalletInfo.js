@@ -1,7 +1,7 @@
-const WalletInfo = ({ account, balance }) => {
+const WalletInfo = ({ address, balance }) => {
     return (
       <div>
-        <p>Account: {account}</p>
+        <p>Address: {address}</p>
         <p>Balance: {balance} ETH</p>
       </div>
     );

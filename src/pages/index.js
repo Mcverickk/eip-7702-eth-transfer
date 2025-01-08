@@ -8,7 +8,7 @@ import TransferForm from "../components/TransferForm";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
-  const [account, setAccount] = useState("");
+  const [address, setAddress] = useState("");
   const [balance, setBalance] = useState(0);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
@@ -21,14 +21,14 @@ export default function Home() {
       <button
         className={styles.connectWallet}
         onClick={() =>
-          connectWallet({ setIsConnected, setBalance, setAccount })
+          connectWallet({ setIsConnected, setBalance, setAddress })
         }
       >
         {isConnected ? "Connected" : "Connect Wallet"}
       </button>
 
       {isConnected && (
-        <WalletInfo account={account} balance={balance} />
+        <WalletInfo address={address} balance={balance} />
       )}
 
       <TransferForm
@@ -42,7 +42,7 @@ export default function Home() {
           sendEth({
             recipient,
             amount,
-            address: account,
+            address,
             privateKey,
             setTxnHash,
           })

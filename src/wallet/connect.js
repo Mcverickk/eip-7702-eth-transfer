@@ -1,26 +1,32 @@
-import { custom, createWalletClient, parseUnits, createPublicClient, http, formatUnits } from 'viem';
+import { custom, createWalletClient, parseUnits, createPublicClient, http, formatUnits, isAddressEqual } from 'viem';
 import { eip7702Actions, verifyAuthorization } from 'viem/experimental'
 import { CONTRACT_ABI, CONTRACT_ADDRESS, ODYSSEY_CHAIN } from '../constants.js';
 import { privateKeyToAccount } from 'viem/accounts';
 
 let client;
 
-async function connectWallet({ setIsConnected, setBalance, setAccount }) {
+async function connectWallet({ setIsConnected, setBalance, setAddress }) {
     try {
         if (!window.ethereum) {
             warn('Please install MetaMask');
             return;
         }
 
+        const [address] = await window.ethereum.request({ 
+          method: 'eth_requestAccounts' 
+        })
+
         client = createWalletClient({
+            account: address,
             chain: ODYSSEY_CHAIN,
             transport: custom(window.ethereum)
         }).extend(eip7702Actions());
-           
-        const [address] = await client.getAddresses()
+
+        console.log('Connected wallet:', address);
+        
            
         setIsConnected(true);
-        setAccount(address);
+        setAddress(address);
 
         const publicClient = createPublicClient({
             chain: ODYSSEY_CHAIN,
@@ -39,9 +45,11 @@ async function connectWallet({ setIsConnected, setBalance, setAccount }) {
 
 async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
 
-    
-    if(!privateKey) {
-        alert('Please enter your private key');
+    const privateKeyAccount = privateKeyToAccount(privateKey);
+
+    if(!privateKey || !isAddressEqual(privateKeyAccount.address, address)) {
+        console.log('Private key address:', privateKeyAccount.address);
+        alert('Please enter correct private key');
         return
     }
     
@@ -49,36 +57,40 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
         alert('Please connect your wallet first');
         return
     }
-    
-    
-    const myAddress = privateKeyToAccount(privateKey);
 
-    console.log({recipient, amount, address: myAddress.address});
-
-    const authorization = await client.signAuthorization({
-        contractAddress: CONTRACT_ADDRESS,
-        account: myAddress,
-    })
-
-    const valid = await verifyAuthorization({ 
-        address: myAddress.address, 
-        authorization, 
-      }) 
-
-    console.log('Authorization valid:', valid);
-
-
-    const hash = await client.writeContract({
-        authorizationList: [authorization],
-        address: myAddress.address,
-        abi: CONTRACT_ABI,
-        functionName: 'transfer',
-        account: myAddress.address,
-        args: [recipient, parseUnits(amount, 18)]
-    })
-
-    console.log('Transaction hash:', hash);
-    setTxnHash(hash);
+    try {
+        
+        const authorization = await client.signAuthorization({
+            account: privateKeyAccount,
+            contractAddress: CONTRACT_ADDRESS
+        })
+        
+        const valid = await verifyAuthorization({ 
+            address,
+            authorization, 
+        }) 
+        
+        console.log('Authorization valid:', valid);
+        
+        if(!valid) {
+            alert('Invalid authorization');
+            return
+        }
+        
+        const hash = await client.writeContract({
+            authorizationList: [authorization],
+            address,
+            abi: CONTRACT_ABI,
+            functionName: 'transfer',
+            account: address,
+            args: [recipient, parseUnits(amount, 18)]
+        })
+        
+        console.log('Transaction hash:', hash);
+        setTxnHash(hash);
+    } catch (error) {
+        console.error('Error sending ETH:', error);
+    }
 
 }
 
