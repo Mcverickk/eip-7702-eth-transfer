@@ -1,7 +1,7 @@
 // index.js
 import { useState } from "react";
 import styles from "../styles/Home.module.css";
-import { connectWallet, sendEth } from "../wallet/connect.js";
+import { connectWallet, sendEth, signAuthorization } from "../wallet/connect.js";
 import Header from "../components/Header";
 import WalletInfo from "../components/WalletInfo";
 import TransferForm from "../components/TransferForm";
@@ -47,6 +47,7 @@ export default function Home() {
             setTxnHash,
           })
         }
+        signAuthorization={() => signAuthorization({ privateKey, address })}
       />
 
       {txnHash && (

@@ -8,6 +8,7 @@ const TransferForm = ({
   privateKey,
   setPrivateKey,
   sendEth,
+  signAuthorization,
 }) => {
   return (
     <div className={styles.formContainer}>
@@ -33,6 +34,9 @@ const TransferForm = ({
         onChange={(e) => setPrivateKey(e.target.value)}
         className={styles.inputField}
       />
+      <button className={styles.submitButton} onClick={signAuthorization}>
+        Sign Authorization
+      </button>
       <button className={styles.submitButton} onClick={sendEth}>
         Send ETH
       </button>

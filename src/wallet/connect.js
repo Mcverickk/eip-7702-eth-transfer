@@ -1,9 +1,11 @@
-import { custom, createWalletClient, parseUnits, createPublicClient, http, formatUnits, isAddressEqual } from 'viem';
+import { custom, createWalletClient, parseUnits, createPublicClient, http, formatUnits, isAddressEqual, encodeFunctionData } from 'viem';
 import { eip7702Actions, verifyAuthorization } from 'viem/experimental'
-import { CONTRACT_ABI, CONTRACT_ADDRESS, ODYSSEY_CHAIN } from '../constants.js';
+import { CONTRACT_ABI, CONTRACT_ADDRESS, CONTRACT_ADDRESS_2, ODYSSEY_CHAIN } from '../constants/chain.js';
 import { privateKeyToAccount } from 'viem/accounts';
+import { SIMPLE_ACCOUNT_ABI, SIMPLE_ACCOUNT_ADDRESS } from '@/constants/SimpleAccont.js';
 
 let client;
+let publicClient;
 
 async function connectWallet({ setIsConnected, setBalance, setAddress }) {
     try {
@@ -28,7 +30,7 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
         setIsConnected(true);
         setAddress(address);
 
-        const publicClient = createPublicClient({
+        publicClient = createPublicClient({
             chain: ODYSSEY_CHAIN,
             transport: http(ODYSSEY_CHAIN.rpcUrls.default[0])
         })
@@ -53,37 +55,22 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
         return
     }
     
-    if(!client) {
+    if(!client || !publicClient) {
         alert('Please connect your wallet first');
         return
     }
 
     try {
-        
-        const authorization = await client.signAuthorization({
-            account: privateKeyAccount,
-            contractAddress: CONTRACT_ADDRESS
-        })
-        
-        const valid = await verifyAuthorization({ 
-            address,
-            authorization, 
-        }) 
-        
-        console.log('Authorization valid:', valid);
-        
-        if(!valid) {
-            alert('Invalid authorization');
-            return
-        }
-        
+
+        const authorization = await signAuthorization({ privateKey, address });
+
         const hash = await client.writeContract({
             authorizationList: [authorization],
             address,
-            abi: CONTRACT_ABI,
-            functionName: 'transfer',
+            abi: SIMPLE_ACCOUNT_ABI,
+            functionName: 'execute',
             account: address,
-            args: [recipient, parseUnits(amount, 18)]
+            args: [recipient, parseUnits(amount, 18), "0x"],
         })
         
         console.log('Transaction hash:', hash);
@@ -91,11 +78,48 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
     } catch (error) {
         console.error('Error sending ETH:', error);
     }
+}
 
+const signAuthorization = async ({ privateKey, address }) => {
+    
+    const privateKeyAccount = privateKeyToAccount(privateKey);
+
+    if(!privateKey || !isAddressEqual(privateKeyAccount.address, address)) {
+        console.log('Private key address:', privateKeyAccount.address);
+        alert('Please enter correct private key');
+        return
+    }
+
+    if(!client) {
+        alert('Please connect your wallet first');
+        return
+    }
+
+    console.log('Signing authorization...');
+
+    const authorization = await client.signAuthorization({
+        account: privateKeyAccount,
+        contractAddress: SIMPLE_ACCOUNT_ADDRESS,
+    })
+    
+    const valid = await verifyAuthorization({ 
+        address: privateKeyAccount.address,
+        authorization, 
+    }) 
+    
+    console.log('Authorization valid:', valid);
+    
+    if(!valid) {
+        alert('Invalid authorization');
+        return
+    } else {
+        console.log('Authorization:', authorization);
+        return authorization;
+    }
 }
 
 
 
 
 
-export {connectWallet, sendEth};
+export {connectWallet, sendEth, signAuthorization};
