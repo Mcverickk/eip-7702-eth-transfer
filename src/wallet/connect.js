@@ -178,28 +178,34 @@ const executeBatch = async ({
 };
 
 const isEOASmart = async ({ address, setIsEOASmartAccount }) => {
-  const publicClient = createPublicClient({
-    chain: CHAIN,
-    transport: http(),
-  });
+  try{
 
-  const contractCode = await publicClient.getCode({ address });
-
-  if (!contractCode || contractCode === "0x") {
+    const publicClient = createPublicClient({
+      chain: CHAIN,
+      transport: http(),
+    });
+    
+    const contractCode = await publicClient.getCode({ address });
+    
+    if (!contractCode || contractCode === "0x") {
+      return false;
+    }
+    
+    if (
+      contractCode.toLowerCase().split("0xef0100")[1] ===
+      SIMPLE_ACCOUNT_ADDRESS.toLowerCase().slice(2)
+    ) {
+      if (setIsEOASmartAccount) {
+        setIsEOASmartAccount(true);
+      }
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error checking if EOA is smart:", error);
     return false;
   }
-
-  if (
-    contractCode.toLowerCase().split("0xef0100")[1] ===
-    SIMPLE_ACCOUNT_ADDRESS.toLowerCase().slice(2)
-  ) {
-    if (setIsEOASmartAccount) {
-      setIsEOASmartAccount(true);
-    }
-    return true;
-  }
-
-  return false;
 };
 
 export { connectWallet, signAuthorization, executeBatch, isEOASmart };
