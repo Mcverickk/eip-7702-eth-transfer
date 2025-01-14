@@ -67,13 +67,20 @@ const signAuthorization = async ({
   setAuthMessage,
   setIsEOASmartAccount,
 }) => {
-  try {
+  try{
     const privateKeyAccount = privateKeyToAccount(privateKey);
-
+  
     if(!privateKeyAccount || !privateKeyAccount.address) {
       setAuthMessage("❌ Invalid private key");
       return;
     }
+  } catch (error) {
+    console.error("Invalid private key", error);
+    setAuthMessage("❌ Invalid private key");
+  }
+  
+
+  try {
 
     setAuthMessage("⌛ Signing authorization...");
 
