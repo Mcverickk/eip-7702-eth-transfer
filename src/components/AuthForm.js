@@ -22,13 +22,14 @@ const AuthForm = ({ setIsEOASmartAccount }) => {
       /> */}
       <input
         type="password"
-        placeholder="Private Key"
+        placeholder="Private Key (0x...)"
         value={privateKey}
         onChange={(e) => setPrivateKey(e.target.value)}
         className={styles.inputField}
       />
       <button
-        className={styles.submitButton}
+        className={privateKey.length === 66 ? styles.submitButton : styles.inactiveSubmitButton}
+        disabled={privateKey.length === 66 ? false : true}
         onClick={() =>
           signAuthorization({
             privateKey,
@@ -40,6 +41,7 @@ const AuthForm = ({ setIsEOASmartAccount }) => {
       >
         Sign Authorization
       </button>
+      {privateKey && privateKey.length !== 66 && <p>Please enter a valid private key.</p>}
       {authMessage && (
         <div className={styles.txnContainer}>
           <p>{authMessage}</p>

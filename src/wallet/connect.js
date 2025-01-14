@@ -68,9 +68,15 @@ const signAuthorization = async ({
   setIsEOASmartAccount,
 }) => {
   try {
+    const privateKeyAccount = privateKeyToAccount(privateKey);
+
+    if(!privateKeyAccount || !privateKeyAccount.address) {
+      setAuthMessage("❌ Invalid private key");
+      return;
+    }
+
     setAuthMessage("⌛ Signing authorization...");
 
-    const privateKeyAccount = privateKeyToAccount(privateKey);
 
     const client = createWalletClient({
       chain: CHAIN,
@@ -93,7 +99,6 @@ const signAuthorization = async ({
     });
 
     if (!valid) {
-      alert("Invalid authorization");
       throw new Error("Invalid authorization");
     } else {
       setAuthMessage("⌛ Setting contract code at EOA...");
