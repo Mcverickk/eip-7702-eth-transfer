@@ -162,6 +162,10 @@ const isEOASmart = async ({ address, setIsEOASmartAccount }) => {
     })
 
     const contractCode = await publicClient.getCode({ address });
+
+    if(!contractCode || contractCode === '0x' ) {
+        return false;
+    }
     
     if( contractCode.toLowerCase().split('0xef0100')[1] === SIMPLE_ACCOUNT_ADDRESS.toLowerCase().slice(2)) {
         if(setIsEOASmartAccount) {
