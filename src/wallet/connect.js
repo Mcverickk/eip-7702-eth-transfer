@@ -77,6 +77,7 @@ const signAuthorization = async ({
   } catch (error) {
     console.error("Invalid private key", error);
     setAuthMessage("❌ Invalid private key");
+    return;
   }
   
 
