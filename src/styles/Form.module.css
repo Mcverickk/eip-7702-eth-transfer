@@ -14,7 +14,7 @@
   }
   
   .inputField {
-    width: 100%;
+    width: 90%;
     padding: 10px;
     margin: 10px 0;
     border: none;
@@ -29,7 +29,7 @@
   }
   
   .submitButton {
-    width: 100%;
+    width: 90%;
     padding: 10px;
     background-color: #0078d4;
     border: none;
@@ -60,6 +60,58 @@
 
   .txnContainer {
     margin-top: 20px;
+  }
+  
+  
+  .addressField {
+    flex: 8; /* 80% of the row width */
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-size: 16px;
+  }
+  
+  .amountField {
+    flex: 2; /* 20% of the row width */
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-size: 16px;
+  }
+  
+
+  .inputRow {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .addRemoveButton {
+    background-color: #2a2a2a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0px 2px;
+  }
+  
+  .addRemoveButton:disabled {
+    background-color: #2a2a2a5d;
+    color: #ffffff75;
+    cursor: not-allowed;
   }
   
   
