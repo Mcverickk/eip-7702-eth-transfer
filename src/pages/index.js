@@ -16,6 +16,7 @@ export default function Home() {
   const [amount, setAmount] = useState("0.00001");
   const [privateKey, setPrivateKey] = useState("");
   const [txnHash, setTxnHash] = useState("");
+  const [txnMsg, setTxnMsg] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [contractAddress, setContractAddress] = useState(SIMPLE_ACCOUNT_ADDRESS);
   const [isEOASmartAccount, setIsEOASmartAccount] = useState(false);
@@ -45,9 +46,10 @@ export default function Home() {
             setAmount={setAmount}
             isConnected={isConnected}
             writeContract={() =>
-              executeBatch({recipient, amount, address, setTxnHash, setBalance})
+              executeBatch({recipient, amount, address, setTxnHash, setBalance, setTxnMsg})
             }
             txnHash={txnHash}
+            txnMsg={txnMsg}
           />
     }
 
@@ -59,6 +61,7 @@ export default function Home() {
                 privateKey,
                 contractAddress,
                 setAuthMessage,
+                setIsEOASmartAccount
               })
             }
             contractAddress={contractAddress}

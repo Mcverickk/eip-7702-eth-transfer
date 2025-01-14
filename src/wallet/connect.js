@@ -48,7 +48,7 @@ async function connectWallet({ setIsConnected, setBalance, setAddress, setIsEOAS
         alert('Failed to connect wallet. Please try again.');
     }
 }
-const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }) => {
+const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage, setIsEOASmartAccount }) => {
 
     try{
         setAuthMessage('⌛ Signing authorization...');
@@ -94,7 +94,7 @@ const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }
             await publicClient.waitForTransactionReceipt({ hash });
 
     
-            const isEOASmartAccount = await isEOASmart({ address: privateKeyAccount.address });
+            const isEOASmartAccount = await isEOASmart({ address: privateKeyAccount.address, setIsEOASmartAccount });
     
             if(isEOASmartAccount) {
                 setAuthMessage('✅ Successfully set contract code at EOA');
@@ -113,7 +113,7 @@ const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }
 }
 
 
-const executeBatch = async ({recipient, amount, address, setTxnHash, setBalance}) => {
+const executeBatch = async ({recipient, amount, address, setTxnHash, setBalance, setTxnMsg}) => {
 
     setTxnHash('');
 
@@ -123,6 +123,7 @@ const executeBatch = async ({recipient, amount, address, setTxnHash, setBalance}
     }
 
     try {
+        setTxnMsg('⌛ Processing transaction...');
         console.log('Input Data', {recipient, amount});
         const recipents = recipient.split(',').map(r => r.trim());
         const amounts = amount.split(',').map(a => parseUnits(a.trim(), 18)); 
@@ -140,17 +141,20 @@ const executeBatch = async ({recipient, amount, address, setTxnHash, setBalance}
         
         console.log('Transaction hash:', hash);
 
-        setTxnHash(hash);
-
+        setTxnMsg('⌛ Waiting for confirmation...');
+        
         await publicClient.waitForTransactionReceipt({ hash });
+        setTxnHash(hash);
 
         const balance = await publicClient.getBalance({ address });
         const formattedBalance = parseFloat(formatUnits(balance, 18)).toFixed(4);
         setBalance(formattedBalance);
 
+        setTxnMsg('✅ Transaction successful');
 
     } catch (error) {
         console.error('Error sending ETH:', error);
+        setTxnMsg('❌ Error sending transaction');
     }
 
 }

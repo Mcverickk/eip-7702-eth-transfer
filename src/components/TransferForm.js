@@ -7,7 +7,8 @@ const TransferForm = ({
     setAmount,
     isConnected,
     writeContract,
-    txnHash
+    txnHash,
+    txnMsg
 }) => {
   return (
     <div className={styles.formContainer}>
@@ -32,6 +33,12 @@ const TransferForm = ({
       {isConnected && <button className={styles.submitButton} onClick={writeContract}>
         Send ETH
       </button>}
+      {txnMsg && (
+            <div className={styles.txnContainer}>
+            <p>
+                {txnMsg}
+            </p>
+            </div>)}
 
       {txnHash && (
         <div className={styles.txnContainer}>

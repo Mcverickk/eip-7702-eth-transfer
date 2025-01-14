@@ -10,14 +10,14 @@ const AuthForm = ({
 }) => {
   return (
     <div className={styles.formContainer}>
-      <h2>Set Contract Code at EOA</h2>
-      <input
+      <h2>Make Your EOA Smart</h2>
+      {/* <input
         type="text"
         placeholder="Contract Address"
         value={contractAddress}
         onChange={(e) => setContractAddress(e.target.value)}
         className={styles.inputField}
-      />
+      /> */}
       <input
         type="password"
         placeholder="Private Key"
