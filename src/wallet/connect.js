@@ -1,11 +1,10 @@
-import { custom, createWalletClient, parseUnits, createPublicClient, http, formatUnits, isAddressEqual, encodeFunctionData } from 'viem';
+import { custom, createWalletClient, parseUnits, createPublicClient, http, formatUnits, isAddressEqual } from 'viem';
 import { eip7702Actions, verifyAuthorization } from 'viem/experimental'
 import { CONTRACT_ABI, CONTRACT_ADDRESS, CONTRACT_ADDRESS_2, ODYSSEY_CHAIN } from '../constants/chain.js';
 import { privateKeyToAccount } from 'viem/accounts';
 import { SIMPLE_ACCOUNT_ABI, SIMPLE_ACCOUNT_ADDRESS } from '@/constants/SimpleAccont.js';
 
 let client;
-let publicClient;
 
 const CHAIN = ODYSSEY_CHAIN;
 
@@ -32,7 +31,7 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
         setIsConnected(true);
         setAddress(address);
 
-        publicClient = createPublicClient({
+        const publicClient = createPublicClient({
             chain: CHAIN,
             transport: http()
         })
@@ -47,33 +46,22 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
     }
 }
 
-async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
-
-    const privateKeyAccount = privateKeyToAccount(privateKey);
-
-    if(!privateKey || !isAddressEqual(privateKeyAccount.address, address)) {
-        console.log('Private key address:', privateKeyAccount.address);
-        alert('Please enter correct private key');
-        return
-    }
+async function writeContract({recipient, amount, address, setTxnHash}) {
     
-    if(!client || !publicClient) {
+    if(!client) {
         alert('Please connect your wallet first');
         return
     }
 
     try {
 
-        const authorization = await signAuthorization({ privateKey, contractAddress: CONTRACT_ADDRESS_2 });
-
-        const hash = await writeContract({
-            authorization,
+        const hash = await client.writeContract({
             address,
             abi: CONTRACT_ABI,
             functionName: 'transfer',
+            account: address,
             args: [recipient, parseUnits(amount, 18)]
         })
-
 
         
         console.log('Transaction hash:', hash);
@@ -83,78 +71,68 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
     }
 }
 
-const signAuthorization = async ({ privateKey, contractAddress }) => {
-    
-    const privateKeyAccount = privateKeyToAccount(privateKey);
+const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }) => {
 
-    if(!privateKey || !isAddressEqual(privateKeyAccount.address, address)) {
-        console.log('Private key address:', privateKeyAccount.address);
-        alert('Please enter correct private key');
-        return
+    try{
+        const privateKeyAccount = privateKeyToAccount(privateKey);
+    
+        const client = createWalletClient({
+            chain: CHAIN,
+            transport: http()
+        }).extend(eip7702Actions());
+    
+        const publicClient = createPublicClient({
+            chain: CHAIN,
+            transport: http()
+        })
+    
+        const authorization = await client.signAuthorization({
+            account: privateKeyAccount,
+            contractAddress
+        })
+        
+        const valid = await verifyAuthorization({ 
+            address: privateKeyAccount.address,
+            authorization, 
+        }) 
+    
+        
+        if(!valid) {
+            alert('Invalid authorization');
+            throw new Error('Invalid authorization');
+        } else {
+    
+            const hash = await client.sendTransaction({
+                account: privateKeyAccount,
+                authorizationList: [authorization],
+                to: privateKeyAccount.address,
+                value: 1000
+            })
+
+            await publicClient.waitForTransactionReceipt({ hash });
+
+    
+            const contractCode = await publicClient.getCode({ address: privateKeyAccount.address });
+    
+            if( contractCode.toLowerCase().split('0xef0100')[1] === contractAddress.toLowerCase().slice(2)) {
+                setAuthMessage('✅ Successfully set contract code at EOA');
+                console.log('Contract code at EOA is correct');
+            } else {
+                console.log('Contract code at EOA is incorrect');
+                throw new Error('Contract code at EOA is incorrect');
+                
+            }
+        }
+
+    } catch (error) {
+        console.error('Error setting contract code at EOA:', error);
+        setAuthMessage('❌ Error setting contract code at EOA');
     }
-
-    if(!client) {
-        alert('Please connect your wallet first');
-        return
-    }
-
-    console.log('Signing authorization...');
-
-    const authorization = await client.signAuthorization({
-        account: privateKeyAccount,
-        contractAddress
-    })
     
-    const valid = await verifyAuthorization({ 
-        address: privateKeyAccount.address,
-        authorization, 
-    }) 
-    
-    console.log('Authorization valid:', valid);
-    
-    if(!valid) {
-        alert('Invalid authorization');
-        return
-    } else {
-        console.log('Authorization:', authorization);
-        return authorization;
-    }
-}
-
-const writeContract = async ({authorization, address, abi, functionName, args}) => {
-
-    const hash = await client.writeContract({
-        authorizationList: [authorization],
-        address,
-        abi,
-        functionName,
-        account: address,
-        args
-    })
-
-    return hash;
-
-}
-
-const sendTxn = async ({authorization, address, abi, functionName, args}) => {
-
-    const data = encodeFunctionData({
-        abi,
-        functionName,
-        args
-    })
-
-    const hash = await client.sendTransaction({
-        authorizationList: [authorization],
-        data,
-        to: address
-    })
-
-    return hash;
 }
 
 
 
 
 
-export {connectWallet, sendEth, signAuthorization};
+export {connectWallet, writeContract, signAuthorization};

@@ -1,14 +1,13 @@
 import styles from "../styles/Form.module.css";
 
 const TransferForm = ({
-  recipient,
-  setRecipient,
-  amount,
-  setAmount,
-  privateKey,
-  setPrivateKey,
-  sendEth,
-  signAuthorization,
+    recipient,
+    setRecipient,
+    amount,
+    setAmount,
+    isConnected,
+    writeContract,
+    txnHash
 }) => {
   return (
     <div className={styles.formContainer}>
@@ -27,19 +26,26 @@ const TransferForm = ({
         onChange={(e) => setAmount(e.target.value)}
         className={styles.inputField}
       />
-      <input
-        type="password"
-        placeholder="Private Key"
-        value={privateKey}
-        onChange={(e) => setPrivateKey(e.target.value)}
-        className={styles.inputField}
-      />
-      <button className={styles.submitButton} onClick={signAuthorization}>
-        Sign Authorization
-      </button>
-      <button className={styles.submitButton} onClick={sendEth}>
+      {!isConnected && <button className={styles.inactiveSubmitButton} disabled={true}>
+        Please connect your wallet
+      </button>}
+      {isConnected && <button className={styles.submitButton} onClick={writeContract}>
         Send ETH
-      </button>
+      </button>}
+
+      {txnHash && (
+        <div className={styles.txnContainer}>
+          <p>
+            <a
+              href={`https://odyssey-explorer.ithaca.xyz/tx/${txnHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View Transaction
+            </a>
+          </p>
+        </div>
+      )}
     </div>
   );
 };

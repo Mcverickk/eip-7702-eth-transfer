@@ -1,11 +1,12 @@
 // index.js
 import { useState } from "react";
 import styles from "../styles/Home.module.css";
-import { connectWallet, sendEth, signAuthorization } from "../wallet/connect.js";
+import { connectWallet, writeContract, signAuthorization } from "../wallet/connect.js";
 import Header from "../components/Header";
 import WalletInfo from "../components/WalletInfo";
 import TransferForm from "../components/TransferForm";
-import { CONTRACT_ADDRESS_2 } from "@/constants/chain";
+import AuthForm from "../components/AuthForm";
+import { CONTRACT_ADDRESS_2, CONTRACT_ADDRESS_3 } from "@/constants/chain";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
@@ -15,10 +16,13 @@ export default function Home() {
   const [amount, setAmount] = useState("0.00001");
   const [privateKey, setPrivateKey] = useState("");
   const [txnHash, setTxnHash] = useState("");
+  const [authMessage, setAuthMessage] = useState("");
+  const [contractAddress, setContractAddress] = useState("");
 
   return (
     <div className={styles.container}>
       <Header />
+      
       <button
         className={styles.connectWallet}
         onClick={() =>
@@ -27,43 +31,36 @@ export default function Home() {
       >
         {isConnected ? "Connected" : "Connect Wallet"}
       </button>
-
       {isConnected && (
         <WalletInfo address={address} balance={balance} />
       )}
 
-      <TransferForm
+    <TransferForm
         recipient={recipient}
         setRecipient={setRecipient}
         amount={amount}
         setAmount={setAmount}
-        privateKey={privateKey}
-        setPrivateKey={setPrivateKey}
-        sendEth={() =>
-          sendEth({
-            recipient,
-            amount,
-            address,
-            privateKey,
-            setTxnHash,
-          })
+        isConnected={isConnected}
+        writeContract={() =>
+          writeContract({recipient, amount, address, setTxnHash})
         }
-        signAuthorization={() => signAuthorization({ privateKey, contractAddress: CONTRACT_ADDRESS_2})}
+        txnHash={txnHash}
       />
 
-      {txnHash && (
-        <div className={styles.txnContainer}>
-          <p>
-            <a
-              href={`https://odyssey-explorer.ithaca.xyz/tx/${txnHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View Transaction
-            </a>
-          </p>
-        </div>
-      )}
+      <AuthForm
+        privateKey={privateKey}
+        setPrivateKey={setPrivateKey}
+        signAuthorization={() =>
+          signAuthorization({
+            privateKey,
+            contractAddress,
+            setAuthMessage,
+          })
+        }
+        contractAddress={contractAddress}
+        setContractAddress={setContractAddress}
+        authMessage={authMessage}
+      />
     </div>
   );
 }

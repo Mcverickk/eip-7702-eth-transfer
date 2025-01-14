@@ -39,8 +39,27 @@
     cursor: pointer;
     margin-bottom: 10px;
   }
+
+  .inactiveSubmitButton{
+
+    width: 100%;
+    padding: 10px;
+    background-color: #9e9e9e;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: not-allowed;
+    margin-bottom: 10px;
+
+  }
   
   .submitButton:hover {
     background-color: #005bb5;
   }
+
+  .txnContainer {
+    margin-top: 20px;
+  }
+  
   
