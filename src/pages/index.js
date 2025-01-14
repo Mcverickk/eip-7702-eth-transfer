@@ -5,6 +5,7 @@ import { connectWallet, sendEth, signAuthorization } from "../wallet/connect.js"
 import Header from "../components/Header";
 import WalletInfo from "../components/WalletInfo";
 import TransferForm from "../components/TransferForm";
+import { CONTRACT_ADDRESS_2 } from "@/constants/chain";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
@@ -47,7 +48,7 @@ export default function Home() {
             setTxnHash,
           })
         }
-        signAuthorization={() => signAuthorization({ privateKey, address })}
+        signAuthorization={() => signAuthorization({ privateKey, contractAddress: CONTRACT_ADDRESS_2})}
       />
 
       {txnHash && (

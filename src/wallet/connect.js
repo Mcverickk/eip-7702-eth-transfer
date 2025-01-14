@@ -7,6 +7,8 @@ import { SIMPLE_ACCOUNT_ABI, SIMPLE_ACCOUNT_ADDRESS } from '@/constants/SimpleAc
 let client;
 let publicClient;
 
+const CHAIN = ODYSSEY_CHAIN;
+
 async function connectWallet({ setIsConnected, setBalance, setAddress }) {
     try {
         if (!window.ethereum) {
@@ -20,7 +22,7 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
 
         client = createWalletClient({
             account: address,
-            chain: ODYSSEY_CHAIN,
+            chain: CHAIN,
             transport: custom(window.ethereum)
         }).extend(eip7702Actions());
 
@@ -31,8 +33,8 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
         setAddress(address);
 
         publicClient = createPublicClient({
-            chain: ODYSSEY_CHAIN,
-            transport: http(ODYSSEY_CHAIN.rpcUrls.default[0])
+            chain: CHAIN,
+            transport: http()
         })
 
         const balance = await publicClient.getBalance({ address });
@@ -62,7 +64,7 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
 
     try {
 
-        const authorization = await signAuthorization({ privateKey, address });
+        const authorization = await signAuthorization({ privateKey, contractAddress: CONTRACT_ADDRESS_2 });
 
         const hash = await writeContract({
             authorization,
@@ -81,7 +83,7 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
     }
 }
 
-const signAuthorization = async ({ privateKey, address }) => {
+const signAuthorization = async ({ privateKey, contractAddress }) => {
     
     const privateKeyAccount = privateKeyToAccount(privateKey);
 
@@ -100,7 +102,7 @@ const signAuthorization = async ({ privateKey, address }) => {
 
     const authorization = await client.signAuthorization({
         account: privateKeyAccount,
-        contractAddress: CONTRACT_ADDRESS_2
+        contractAddress
     })
     
     const valid = await verifyAuthorization({ 
