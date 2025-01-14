@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "../styles/Form.module.css";
-import { SIMPLE_ACCOUNT_ADDRESS } from "@/constants/SimpleAccont";
+import { SIMPLE_ACCOUNT_ADDRESS } from "@/constants/simpleAccount";
 import { signAuthorization } from "@/wallet/connect";
 
 const AuthForm = ({ setIsEOASmartAccount }) => {

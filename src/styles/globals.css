@@ -1,13 +1,12 @@
 /* global.css */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #ffffff;
-  }
-  
-  a {
-    color: #1e88e5;
-    text-decoration: none;
-  }
-  
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #ffffff;
+}
+
+a {
+  color: #1e88e5;
+  text-decoration: none;
+}

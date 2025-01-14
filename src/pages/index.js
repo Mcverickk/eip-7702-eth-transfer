@@ -16,31 +16,31 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Header />
-      
+
       <button
         className={styles.connectWallet}
         onClick={() =>
-          connectWallet({ setIsConnected, setBalance, setAddress, setIsEOASmartAccount })
+          connectWallet({
+            setIsConnected,
+            setBalance,
+            setAddress,
+            setIsEOASmartAccount,
+          })
         }
       >
         {isConnected ? "Connected" : "Connect Wallet"}
       </button>
-      {isConnected && (
-        <WalletInfo address={address} balance={balance} />
+      {isConnected && <WalletInfo address={address} balance={balance} />}
+
+      {isEOASmartAccount && (
+        <TransferForm
+          isConnected={isConnected}
+          address={address}
+          setBalance={setBalance}
+        />
       )}
 
-    {
-        isEOASmartAccount &&
-        <TransferForm
-            isConnected={isConnected}
-            address={address}
-            setBalance={setBalance}
-          />
-    }
-
-    <AuthForm
-            setIsEOASmartAccount={setIsEOASmartAccount}
-          />
+      <AuthForm setIsEOASmartAccount={setIsEOASmartAccount} />
     </div>
   );
 }

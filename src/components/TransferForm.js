@@ -2,11 +2,7 @@ import { useState } from "react";
 import styles from "../styles/Form.module.css";
 import { executeBatch } from "@/wallet/connect";
 
-const TransferForm = ({
-  isConnected,
-  address,
-    setBalance,
-}) => {
+const TransferForm = ({ isConnected, address, setBalance }) => {
   const [recipients, setRecipients] = useState([""]);
   const [amounts, setAmounts] = useState([""]);
   const [txnHash, setTxnHash] = useState("");
@@ -41,8 +37,15 @@ const TransferForm = ({
   const handleSubmit = () => {
     const recipientStr = recipients.join(",");
     const amountStr = amounts.join(",");
-    console.log({recipientStr, amountStr});
-    executeBatch({ recipient: recipientStr, amount: amountStr, address, setTxnHash, setBalance, setTxnMsg})
+    console.log({ recipientStr, amountStr });
+    executeBatch({
+      recipient: recipientStr,
+      amount: amountStr,
+      address,
+      setTxnHash,
+      setBalance,
+      setTxnMsg,
+    });
   };
 
   return (
