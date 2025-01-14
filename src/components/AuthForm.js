@@ -13,6 +13,7 @@ const AuthForm = ({ setIsEOASmartAccount }) => {
   return (
     <div className={styles.formContainer}>
       <h2>Make Your EOA Smart</h2>
+      <p className={styles.infoText}>Currently, wallets do not support sending transactions with authorizationList as per EIP-7702. Hence, we require your private key to sign and send a simple transaction to set the code.</p>
       {/* <input
         type="text"
         placeholder="Contract Address"
