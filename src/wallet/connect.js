@@ -64,14 +64,15 @@ async function sendEth({recipient, amount, address, privateKey, setTxnHash}) {
 
         const authorization = await signAuthorization({ privateKey, address });
 
-        const hash = await client.writeContract({
-            authorizationList: [authorization],
+        const hash = await writeContract({
+            authorization,
             address,
-            abi: SIMPLE_ACCOUNT_ABI,
-            functionName: 'execute',
-            account: address,
-            args: [recipient, parseUnits(amount, 18), "0x"],
+            abi: CONTRACT_ABI,
+            functionName: 'transfer',
+            args: [recipient, parseUnits(amount, 18)]
         })
+
+
         
         console.log('Transaction hash:', hash);
         setTxnHash(hash);
@@ -99,7 +100,7 @@ const signAuthorization = async ({ privateKey, address }) => {
 
     const authorization = await client.signAuthorization({
         account: privateKeyAccount,
-        contractAddress: SIMPLE_ACCOUNT_ADDRESS,
+        contractAddress: CONTRACT_ADDRESS_2
     })
     
     const valid = await verifyAuthorization({ 
@@ -116,6 +117,38 @@ const signAuthorization = async ({ privateKey, address }) => {
         console.log('Authorization:', authorization);
         return authorization;
     }
+}
+
+const writeContract = async ({authorization, address, abi, functionName, args}) => {
+
+    const hash = await client.writeContract({
+        authorizationList: [authorization],
+        address,
+        abi,
+        functionName,
+        account: address,
+        args
+    })
+
+    return hash;
+
+}
+
+const sendTxn = async ({authorization, address, abi, functionName, args}) => {
+
+    const data = encodeFunctionData({
+        abi,
+        functionName,
+        args
+    })
+
+    const hash = await client.sendTransaction({
+        authorizationList: [authorization],
+        data,
+        to: address
+    })
+
+    return hash;
 }
 
 

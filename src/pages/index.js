@@ -10,8 +10,8 @@ export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState("");
   const [balance, setBalance] = useState(0);
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
+  const [recipient, setRecipient] = useState("0x34F4198f2D8D66666A7BEB417a246bB20c66c97a");
+  const [amount, setAmount] = useState("0.00001");
   const [privateKey, setPrivateKey] = useState("");
   const [txnHash, setTxnHash] = useState("");
 
