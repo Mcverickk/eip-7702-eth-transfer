@@ -134,8 +134,8 @@ const signAuthorization = async ({
 };
 
 const executeBatch = async ({
-  recipient,
-  amount,
+  recipients,
+  amounts,
   address,
   setTxnHash,
   setBalance,
@@ -150,18 +150,16 @@ const executeBatch = async ({
 
   try {
     setTxnMsg("⌛ Processing transaction...");
-    console.log("Input Data", { recipient, amount });
-    const recipents = recipient.split(",").map((r) => r.trim());
-    const amounts = amount.split(",").map((a) => parseUnits(a.trim(), 18));
-    const data = recipents.map((r) => "0x");
-    console.log("Processed Data", { recipents, amounts, data });
+    
+    const data = recipients.map((r) => "0x");
+    console.log("Processed Data", { recipients, amounts, data });
 
     const hash = await walletClient.writeContract({
       address,
       abi: SIMPLE_ACCOUNT_ABI,
       functionName: "executeBatch",
       account: address,
-      args: [recipents, amounts, data],
+      args: [recipients, amounts, data],
     });
 
     console.log("Transaction hash:", hash);

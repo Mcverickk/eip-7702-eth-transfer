@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "../styles/Form.module.css";
 import { executeBatch } from "@/wallet/connect";
+import { isAddress, parseUnits } from "viem";
 
 const TransferForm = ({ isConnected, address, setBalance }) => {
   const [recipients, setRecipients] = useState([""]);
@@ -35,12 +36,37 @@ const TransferForm = ({ isConnected, address, setBalance }) => {
   };
 
   const handleSubmit = () => {
-    const recipientStr = recipients.join(",");
-    const amountStr = amounts.join(",");
-    console.log({ recipientStr, amountStr });
+    let formattedRecipients;
+    let formattedAmounts;
+    try{
+
+      if(recipients.length !== amounts.length) {
+        setTxnMsg("Invalid input data");
+        return;
+      }
+      formattedRecipients = recipients.map((r) => r.trim());
+      formattedAmounts = amounts.map((a) => parseUnits(a.trim(), 18));
+      
+      for(let i = 0; i < recipients.length; i++) {
+        if(isAddress(recipients[i]) === false) {
+          setTxnMsg(`🚫 Invalid address in row ${i+1}`);
+          return;
+        }
+        if(!amounts[i] || parseFloat(amounts[i]) == 0) {
+          setTxnMsg(`🚫 Invalid amount in row ${i+1}`);
+          return;
+        }
+      }
+      
+      setTxnMsg("");
+    } catch (error) {
+      setTxnMsg("🚫 Invalid input data");
+      return;
+    }
+
     executeBatch({
-      recipient: recipientStr,
-      amount: amountStr,
+      recipients: formattedRecipients,
+      amounts: formattedAmounts,
       address,
       setTxnHash,
       setBalance,
