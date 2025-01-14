@@ -4,11 +4,12 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS, CONTRACT_ADDRESS_2, ODYSSEY_CHAIN } fro
 import { privateKeyToAccount } from 'viem/accounts';
 import { SIMPLE_ACCOUNT_ABI, SIMPLE_ACCOUNT_ADDRESS } from '@/constants/SimpleAccont.js';
 
-let client;
+let walletClient;
+let publicClient;
 
 const CHAIN = ODYSSEY_CHAIN;
 
-async function connectWallet({ setIsConnected, setBalance, setAddress }) {
+async function connectWallet({ setIsConnected, setBalance, setAddress, setIsEOASmartAccount }) {
     try {
         if (!window.ethereum) {
             warn('Please install MetaMask');
@@ -19,7 +20,7 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
           method: 'eth_requestAccounts' 
         })
 
-        client = createWalletClient({
+        walletClient = createWalletClient({
             account: address,
             chain: CHAIN,
             transport: custom(window.ethereum)
@@ -31,7 +32,7 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
         setIsConnected(true);
         setAddress(address);
 
-        const publicClient = createPublicClient({
+        publicClient = createPublicClient({
             chain: CHAIN,
             transport: http()
         })
@@ -40,40 +41,18 @@ async function connectWallet({ setIsConnected, setBalance, setAddress }) {
         const formattedBalance = parseFloat(formatUnits(balance, 18)).toFixed(4);
         setBalance(formattedBalance);
 
+        await isEOASmart({ address, setIsEOASmartAccount });
+
     } catch (error) {
         console.error('Error connecting wallet:', error);
         alert('Failed to connect wallet. Please try again.');
     }
 }
-
-async function writeContract({recipient, amount, address, setTxnHash}) {
-    
-    if(!client) {
-        alert('Please connect your wallet first');
-        return
-    }
-
-    try {
-
-        const hash = await client.writeContract({
-            address,
-            abi: CONTRACT_ABI,
-            functionName: 'transfer',
-            account: address,
-            args: [recipient, parseUnits(amount, 18)]
-        })
-
-        
-        console.log('Transaction hash:', hash);
-        setTxnHash(hash);
-    } catch (error) {
-        console.error('Error sending ETH:', error);
-    }
-}
-
 const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }) => {
 
     try{
+        setAuthMessage('⌛ Signing authorization...');
+
         const privateKeyAccount = privateKeyToAccount(privateKey);
     
         const client = createWalletClient({
@@ -101,6 +80,7 @@ const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }
             alert('Invalid authorization');
             throw new Error('Invalid authorization');
         } else {
+            setAuthMessage('⌛ Setting contract code at EOA...');
     
             const hash = await client.sendTransaction({
                 account: privateKeyAccount,
@@ -109,18 +89,19 @@ const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }
                 value: 1000
             })
 
+            setAuthMessage('⌛ Waiting for confirmation...');
+
             await publicClient.waitForTransactionReceipt({ hash });
 
     
-            const contractCode = await publicClient.getCode({ address: privateKeyAccount.address });
+            const isEOASmartAccount = await isEOASmart({ address: privateKeyAccount.address });
     
-            if( contractCode.toLowerCase().split('0xef0100')[1] === contractAddress.toLowerCase().slice(2)) {
+            if(isEOASmartAccount) {
                 setAuthMessage('✅ Successfully set contract code at EOA');
                 console.log('Contract code at EOA is correct');
             } else {
                 console.log('Contract code at EOA is incorrect');
                 throw new Error('Contract code at EOA is incorrect');
-                
             }
         }
 
@@ -132,7 +113,68 @@ const signAuthorization = async ({ privateKey, contractAddress, setAuthMessage }
 }
 
 
+const executeBatch = async ({recipient, amount, address, setTxnHash, setBalance}) => {
+
+    setTxnHash('');
+
+    if(!walletClient) {
+        alert('Please connect your wallet first');
+        return
+    }
+
+    try {
+        console.log('Input Data', {recipient, amount});
+        const recipents = recipient.split(',').map(r => r.trim());
+        const amounts = amount.split(',').map(a => parseUnits(a.trim(), 18)); 
+        const data = recipents.map(r => "0x");
+        console.log('Processed Data', {recipents, amounts, data});
+
+        const hash = await walletClient.writeContract({
+            address,
+            abi: SIMPLE_ACCOUNT_ABI,
+            functionName: 'executeBatch',
+            account: address,
+            args: [recipents, amounts, data]
+        })
+
+        
+        console.log('Transaction hash:', hash);
+
+        setTxnHash(hash);
+
+        await publicClient.waitForTransactionReceipt({ hash });
+
+        const balance = await publicClient.getBalance({ address });
+        const formattedBalance = parseFloat(formatUnits(balance, 18)).toFixed(4);
+        setBalance(formattedBalance);
+
+
+    } catch (error) {
+        console.error('Error sending ETH:', error);
+    }
+
+}
+
+const isEOASmart = async ({ address, setIsEOASmartAccount }) => {
+    const publicClient = createPublicClient({
+        chain: CHAIN,
+        transport: http()
+    })
+
+    const contractCode = await publicClient.getCode({ address });
+    
+    if( contractCode.toLowerCase().split('0xef0100')[1] === SIMPLE_ACCOUNT_ADDRESS.toLowerCase().slice(2)) {
+        if(setIsEOASmartAccount) {
+            setIsEOASmartAccount(true);
+        }
+        return true;
+    }
+
+    return false;
+}
 
 
 
-export {connectWallet, writeContract, signAuthorization};
+
+
+export {connectWallet, signAuthorization, executeBatch, isEOASmart};

@@ -14,13 +14,13 @@ const TransferForm = ({
       <h2>Transfer ETH</h2>
       <input
         type="text"
-        placeholder="Recipient Address"
+        placeholder="Recipient Addresses"
         value={recipient}
         onChange={(e) => setRecipient(e.target.value)}
         className={styles.inputField}
       />
       <input
-        type="number"
+        type="text"
         placeholder="Amount in ETH"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}

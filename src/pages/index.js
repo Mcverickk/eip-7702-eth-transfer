@@ -1,12 +1,12 @@
 // index.js
 import { useState } from "react";
 import styles from "../styles/Home.module.css";
-import { connectWallet, writeContract, signAuthorization } from "../wallet/connect.js";
+import { connectWallet, signAuthorization, executeBatch } from "../wallet/connect.js";
 import Header from "../components/Header";
 import WalletInfo from "../components/WalletInfo";
 import TransferForm from "../components/TransferForm";
 import AuthForm from "../components/AuthForm";
-import { CONTRACT_ADDRESS_2, CONTRACT_ADDRESS_3 } from "@/constants/chain";
+import { SIMPLE_ACCOUNT_ADDRESS } from "@/constants/SimpleAccont";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
@@ -17,7 +17,8 @@ export default function Home() {
   const [privateKey, setPrivateKey] = useState("");
   const [txnHash, setTxnHash] = useState("");
   const [authMessage, setAuthMessage] = useState("");
-  const [contractAddress, setContractAddress] = useState("");
+  const [contractAddress, setContractAddress] = useState(SIMPLE_ACCOUNT_ADDRESS);
+  const [isEOASmartAccount, setIsEOASmartAccount] = useState(false);
 
   return (
     <div className={styles.container}>
@@ -26,7 +27,7 @@ export default function Home() {
       <button
         className={styles.connectWallet}
         onClick={() =>
-          connectWallet({ setIsConnected, setBalance, setAddress })
+          connectWallet({ setIsConnected, setBalance, setAddress, setIsEOASmartAccount })
         }
       >
         {isConnected ? "Connected" : "Connect Wallet"}
@@ -35,32 +36,37 @@ export default function Home() {
         <WalletInfo address={address} balance={balance} />
       )}
 
-    <TransferForm
-        recipient={recipient}
-        setRecipient={setRecipient}
-        amount={amount}
-        setAmount={setAmount}
-        isConnected={isConnected}
-        writeContract={() =>
-          writeContract({recipient, amount, address, setTxnHash})
-        }
-        txnHash={txnHash}
-      />
+    {
+        isEOASmartAccount &&
+        <TransferForm
+            recipient={recipient}
+            setRecipient={setRecipient}
+            amount={amount}
+            setAmount={setAmount}
+            isConnected={isConnected}
+            writeContract={() =>
+              executeBatch({recipient, amount, address, setTxnHash, setBalance})
+            }
+            txnHash={txnHash}
+          />
+    }
 
-      <AuthForm
-        privateKey={privateKey}
-        setPrivateKey={setPrivateKey}
-        signAuthorization={() =>
-          signAuthorization({
-            privateKey,
-            contractAddress,
-            setAuthMessage,
-          })
-        }
-        contractAddress={contractAddress}
-        setContractAddress={setContractAddress}
-        authMessage={authMessage}
-      />
+    <AuthForm
+            privateKey={privateKey}
+            setPrivateKey={setPrivateKey}
+            signAuthorization={() =>
+              signAuthorization({
+                privateKey,
+                contractAddress,
+                setAuthMessage,
+              })
+            }
+            contractAddress={contractAddress}
+            setContractAddress={setContractAddress}
+            authMessage={authMessage}
+          />
+
+
     </div>
   );
 }
