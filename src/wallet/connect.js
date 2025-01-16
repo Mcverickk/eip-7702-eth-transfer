@@ -121,7 +121,9 @@ const signAuthorization = async ({
 
       setAuthMessage("⌛ Waiting for confirmation...");
 
-      await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+      console.log("Transaction receipt:", receipt);
 
       const isEOASmartAccount = await isEOASmart({
         address: privateKeyAccount.address,
